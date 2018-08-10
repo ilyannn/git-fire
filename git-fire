@@ -81,8 +81,8 @@ display_help() {
     git fire <message>              Execute git fire with <message> for commit message
 
   options:
-    -V, --version                   Output current version of git-fire
-	-c, --clean <epoch>             Delete the branch saved with this email and <epoch> timestamp
+    -V, -v, --version                   Output current version of git-fire
+    -c, --clean <epoch>             Delete the branch saved with this email and <epoch> timestamp
     -h, --help                      Display this help information
 
 EOF
@@ -91,8 +91,8 @@ EOF
 
 
 case $1 in
-	-V|--version) version; exit 0 ;;
-	-c|--clean) clean_fire $2; exit 0 ;;
+	-V|-v|--version) version; exit 0 ;;
+    -c|--clean) clean_fire $2; exit 0 ;;
 	-h|--help) display_help; exit 0 ;;
 esac
 
