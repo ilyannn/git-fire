@@ -23,13 +23,17 @@ user_email() {
 }
 
 new_branch() {
-	echo "fire-$(user_email)/${1:-$(current_branch)}-$(current_epoch)"
+	echo "fire-$(user_email)/$(current_branch)-$1"
+}
+
+stash_branch_ref() {
+	echo "refs/heads/stash-$1"
 }
 
 fire() {
 	initial_branch="$(current_branch)"
-
-	git checkout -b "$(new_branch)"
+	epoch = "$(current_epoch)"
+	fire_branch="$(new_branch $epoch)"
 
 	# cd to git root directory
 	cd "$(git rev-parse --show-toplevel)"
@@ -45,18 +49,21 @@ fire() {
 	git commit -m "$message" --no-verify
 
 	for remote in $(git remote); do
-		git push --set-upstream "${remote}" "$(current_branch)" || true
+		git push "${remote}" "HEAD:${fire_branch}" || true
 	done
 
-	if [[ $(git stash list) != '' ]]; then
-	  for sha in $(git rev-list -g stash); do
-		  git push origin "$sha":refs/heads/"$(current_branch $initial_branch)"-stash-"$sha"
-	  done
-	fi
+	printf "\n\nWork saved to ${fire_branch}!\n"
+	printf "\n\nRemove the branches with: git-fire --clean ${epoch}\n"
+	git reset --soft HEAD~1
+}
 
-	printf "\n\nWork saved to $(current_branch)!\n"
+clean_fire() {
 
-	git reset --soft "$initial_branch"
+	fire_branch="$(new_branch $1)"
+
+	for remote in $(git remote); do
+		git push "${remote}" ":${fire_branch}" || true
+	done
 }
 
 display_help() {
@@ -69,9 +76,9 @@ display_help() {
     git fire                        Add, commit, and push to remote in case of a fire
     git fire <message>              Execute git fire with <message> for commit message
 
-
   options:
     -V, --version                   Output current version of git-fire
+	-c, --clean <epoch>             Delete the branch saved with this email and <epoch> timestamp
     -h, --help                      Display this help information
 
 EOF
@@ -81,6 +88,7 @@ EOF
 
 case $1 in
 	-V|--version) version; exit 0 ;;
+	-c|--clean) clean_fire $2; exit 0 ;;
 	-h|--help) display_help; exit 0 ;;
 esac
 
