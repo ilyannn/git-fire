@@ -31,9 +31,9 @@ new_stash_branch() {
 }
 
 fire() {
-	initial_branch="$(current_branch)"
-	epoch = "$(current_epoch)"
-	fire_branch="$(new_branch $epoch)"
+	local initial_branch="$(current_branch)"
+	local epoch="$(current_epoch)"
+	local fire_branch="$(new_branch ${epoch})"
 
 	git add -A
 
@@ -51,19 +51,19 @@ fire() {
 
 		if [[ $(git stash list) != '' ]]; then
 	  		for sha in $(git rev-list -g stash); do
-		  		git push "${remote}" "${sha}:refs/heads/$(new_stash_branch $sha)""
+		  		git push "${remote}" "${sha}:refs/heads/$(new_stash_branch $sha)"
 	  		done
 		fi
 	done
 
-	printf "\n\nWork saved to ${fire_branch}!\n"
-	printf "\n\nRemove the branches with: git-fire --clean ${epoch}\n"
+	printf "\n\nWork pushed to ${fire_branch}"
+	printf "\nRemove the branches with: $0 --clean ${epoch}\n"
 	git reset --soft HEAD~1
 }
 
 clean_fire() {
 
-	fire_branch="$(new_branch $1)"
+	local fire_branch="$(new_branch $1)"
 
 	for remote in $(git remote); do
 		git push "${remote}" ":${fire_branch}" || true
