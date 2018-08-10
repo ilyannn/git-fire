@@ -56,7 +56,7 @@ fire() {
 
 	printf "\n\nWork saved to $(current_branch)!\n"
 
-	git reset --soft "$(initial_branch)"
+	git reset --soft "$initial_branch"
 }
 
 display_help() {
