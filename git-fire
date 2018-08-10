@@ -54,7 +54,7 @@ fire() {
 	  done
 	fi
 
-	printf "\n\nWork saved!\n"
+	printf "\n\nWork saved to $(current_branch)!\n"
 }
 
 display_help() {
